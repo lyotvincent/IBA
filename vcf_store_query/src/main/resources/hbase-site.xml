@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+/**
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<configuration>
+<!-- 设置HRegionServers共享目录，不要加上端口号，否则HMaster进程启动不起来，在日志里会报错（mkdir: Port 9000 specified in URI hdfs://gagcluster:9000 but host 'gagcluster' is a logical (HA) namenode and does not use port information） -->
+<property>
+<name>hbase.rootdir</name>
+<value>hdfs://node1.hadoop:9000/hbase</value>
+</property>
+<property>
+<name>hbase.tmp.dir</name>
+<value>/hadoop/hbase/tmp</value>
+</property>
+<!-- - 如果只设置单个 Hmaster，那么 hbase.master 属性参数需要设置为 master5:60000 (主机名:60000)
+     - 如果要设置多个 Hmaster，那么我们只需要提供端口 60000，因为选择真正的 master 的事情会有 zookeeper 去处理 -->
+<property>
+<name>hbase.master</name>
+<value>node1.hadoop:60000</value>
+</property>
+<!-- 启用分布式模式 -->
+<property>
+<name>hbase.cluster.distributed</name>
+<value>true</value>
+</property>
+<!-- 指定Zookeeper集群位置 -->
+<property>
+<name>hbase.zookeeper.quorum</name>
+<value>node2.hadoop:2181,node3.hadoop:2181,node4.hadoop:2181</value>
+</property>
+<!-- 这个参数用户设置 ZooKeeper 快照的存储位置，默认值为 /tmp，显然在重启的时候会清空。因为笔者的 ZooKeeper 是独立安装的，所以这里路径是指向了 $ZOOKEEPER_HOME/conf/zoo.cfg 中 dataDir 所设定的位置。 -->
+<property>
+<name>hbase.zookeeper.property.dataDir</name>
+<value>/hadoop/zookeeper-3.4.13/data</value>
+</property>
+<!-- 表示客户端连接 ZooKeeper 的端口 -->
+<property>
+<name>hbase.zookeeper.property.clientPort</name>
+<value>2181</value>
+</property>
+<!-- ZooKeeper 会话超时。Hbase 把这个值传递改 zk 集群，向它推荐一个会话的最大超时时间 -->
+<property>
+<name>zookeeper.session.timeout</name>
+<value>120000</value>
+</property>
+<property>
+<name>hbase.master.info.port</name>
+<value>60010</value>
+</property>
+<property>
+<name>hbase.regionserver.info.port</name>
+<value>60030</value>
+</property>
+<!-- 当 regionserver 遇到 ZooKeeper session expired ， regionserver 将选择 restart 而不是 abort -->
+<property>
+<name>hbase.regionserver.restart.on.zk.expire</name>
+<value>true</value>
+</property>
+<property>
+<name>hbase.bulkload.retries.number</name>
+<value>0</value>
+</property>
+</configuration>
